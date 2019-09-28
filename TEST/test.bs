@@ -1,0 +1,15 @@
+TEST
+
+    SECTION | count 5
+
+        Uuid : UUID | key, unique
+        Name : STRING
+        Text : STRING
+
+    ARTICLE | count 20
+
+        Uuid : UUID | key, unique
+        SectionUuid : SECTION.Uuid | indexed
+        Title : STRING
+        Text : STRING
+        DateTime : DATETIME
