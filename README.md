@@ -6,7 +6,7 @@ CQL and SQL script runner.
 
 ## Description
 
-Cyclone applies CQL/SQL scripts to a database.
+Cyclone automatically applies the statements of one or several CQL/SQL scripts to a database.
 
 ## Installation
 
@@ -23,7 +23,7 @@ go build cyclone.go
 ## Command line
 
 ```bash
-cyclone {server} {port} {schema} {user} {password} {script} {script} ...
+cyclone {server} {port} {schema} {user} {password} {script file path} {script file path} ...
 ```
 
 ### Examples
@@ -32,7 +32,7 @@ cyclone {server} {port} {schema} {user} {password} {script} {script} ...
 cyclone 127.0.0.1 9042 TEST cassandra cassandra test.cql test_data.cql
 ```
 
-Runs the SQL statements of `test.cql` and `test_data.cql` on localhost.
+Runs the CQL statements of `test.cql` and `test_data.cql` on localhost.
 
 ```bash
 cyclone 127.0.0.1 3306 TEST root root test.sql test_data.sql
