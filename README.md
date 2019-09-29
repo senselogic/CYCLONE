@@ -23,22 +23,22 @@ go build cyclone.go
 ## Command line
 
 ```bash
-cyclone {driver} {server} {port} {schema} {user} {password} {first_script} {second_script} ...
+cyclone {driver} {server} {port} {user} {password} {first_script} {second_script} ...
 ```
 
 ### Examples
 
 ```bash
-cyclone cassandra 127.0.0.1 9042 TEST cassandra cassandra test.cql test_data.cql
+cyclone cassandra 127.0.0.1 9042 cassandra cassandra test.cql test_data.cql
 ```
 
-Runs the CQL statements of `test.cql` and `test_data.cql` on a Cassandra database.
+Runs the CQL statements of `test.cql` and `test_data.cql` on a local Cassandra database server.
 
 ```bash
-cyclone mysql 127.0.0.1 3306 TEST root root test.sql test_data.sql
+cyclone mysql 127.0.0.1 3306 root root test.sql test_data.sql
 ```
 
-Runs the SQL statements of `test.sql` and `test_data.sql` on a MySQL database.
+Runs the SQL statements of `test.sql` and `test_data.sql` on a local MySQL database server.
 
 ## Version
 

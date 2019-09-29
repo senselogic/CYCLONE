@@ -15,7 +15,7 @@ import ( "database/sql"
 // -- VARIABLES
 
 var IsCqlDatabase, IsSqlDatabase bool;
-var DatabaseDriver, DatabasePassword, DatabasePort, DatabaseServer, DatabaseSchema, DatabaseUser string;
+var DatabaseDriver, DatabasePassword, DatabasePort, DatabaseServer, DatabaseUser string;
 var ScriptFilePathArray [] string;
 var CqlSession * gocql.Session;
 var SqlDatabase * sql.DB;
@@ -41,12 +41,12 @@ func ( error_message * ERROR_MESSAGE ) Print( ) {
 
         if ( text != "" ) {
              if ( error_text != "" ) {
-                fmt.Println( text, "(" + error_text + ")" );
+                fmt.Println( "*** ERROR :", text, "(" + error_text + ")" );
             } else {
-                fmt.Println( text );
+                fmt.Println( "*** ERROR :", text );
             }
         } else if ( error_text != "" ) {
-            fmt.Println( error_text );
+            fmt.Println( "*** ERROR :", error_text );
         }
     }
 }
@@ -105,7 +105,6 @@ func OpenDatabase( error_message * ERROR_MESSAGE ) bool {
 
     if ( IsCqlDatabase ) {
         cql_cluster_configuration := gocql.NewCluster( DatabaseServer );
-        cql_cluster_configuration.Keyspace = DatabaseSchema;
         cql_cluster_configuration.Port = GetInteger( DatabasePort );
         cql_cluster_configuration.Timeout = 15 * time.Second;
         cql_cluster_configuration.ConnectTimeout = 15 * time.Second;
@@ -200,19 +199,17 @@ func CloseDatabase( ) bool {
 func ParseArguments( error_message * ERROR_MESSAGE ) bool {
     argument_array := os.Args[ 1 : ];
 
-    if ( len( argument_array ) >= 7 ) {
+    if ( len( argument_array ) >= 6 ) {
         DatabaseDriver = argument_array[ 0 ];
         DatabaseServer = argument_array[ 1 ];
         DatabasePort = argument_array[ 2 ];
-        DatabaseSchema = argument_array[ 3 ];
-        DatabaseUser = argument_array[ 4 ];
-        DatabasePassword = argument_array[ 5 ];
-        ScriptFilePathArray = argument_array[ 6 : ];
+        DatabaseUser = argument_array[ 3 ];
+        DatabasePassword = argument_array[ 4 ];
+        ScriptFilePathArray = argument_array[ 5 : ];
 
         fmt.Println( "Driver :", DatabaseDriver );
         fmt.Println( "Server :", DatabaseServer );
         fmt.Println( "Port :", DatabasePort );
-        fmt.Println( "Schema :", DatabaseSchema );
         fmt.Println( "User :", DatabaseUser );
         fmt.Println( "Password :", DatabasePassword );
 
@@ -234,12 +231,6 @@ func ParseArguments( error_message * ERROR_MESSAGE ) bool {
 
         if ( DatabasePort == "" || !IsNatural( DatabasePort ) ) {
             error_message.SetText( "Invalid database port : " + DatabasePort );
-
-            return false;
-        }
-
-        if ( DatabaseSchema == "" ) {
-            error_message.SetText( "Missing database name argument : " + DatabaseSchema );
 
             return false;
         }
