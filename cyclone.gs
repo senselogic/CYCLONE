@@ -20,6 +20,7 @@ var
     IsCqlDatabase,
     IsSqlDatabase bool;
 var
+    DatabaseDriver,
     DatabasePassword,
     DatabasePort,
     DatabaseServer,
@@ -61,7 +62,7 @@ func ( error_message * ERROR_MESSAGE ) Print(
         {
              if ( error_text != "" )
             {
-                fmt.Println( text + " (" + error_text + ")" );
+                fmt.Println( text, "(" + error_text + ")" );
             }
             else
             {
@@ -202,7 +203,7 @@ func RunDatabaseQuery(
     var
         error_ error;
 
-    fmt.Println( "Running query : " + query );
+    fmt.Println( query );
 
     if ( IsCqlDatabase )
     {
@@ -295,31 +296,78 @@ func ParseArguments(
 {
     argument_array := os.Args[ 1 : ];
 
-    if ( len( argument_array ) >= 6 )
+    if ( len( argument_array ) >= 7 )
     {
-        DatabaseServer = argument_array[ 0 ];
-        DatabasePort = argument_array[ 1 ];
-        DatabaseSchema = argument_array[ 2 ];
-        DatabaseUser = argument_array[ 3 ];
-        DatabasePassword = argument_array[ 4 ];
+        DatabaseDriver = argument_array[ 0 ];
+        DatabaseServer = argument_array[ 1 ];
+        DatabasePort = argument_array[ 2 ];
+        DatabaseSchema = argument_array[ 3 ];
+        DatabaseUser = argument_array[ 4 ];
+        DatabasePassword = argument_array[ 5 ];
+        ScriptFilePathArray = argument_array[ 6 : ];
 
-        for _, argument := range argument_array[ 5 : ]
+        fmt.Println( "Driver :", DatabaseDriver );
+        fmt.Println( "Server :", DatabaseServer );
+        fmt.Println( "Port :", DatabasePort );
+        fmt.Println( "Schema :", DatabaseSchema );
+        fmt.Println( "User :", DatabaseUser );
+        fmt.Println( "Password :", DatabasePassword );
+
+        if ( DatabaseDriver == "cassandra" )
         {
-            if ( strings.HasSuffix( argument, ".cql" )
-                 && !IsSqlDatabase )
+            IsCqlDatabase = true;
+        }
+        else if ( DatabaseDriver == "mysql" )
+        {
+            IsSqlDatabase = true;
+        }
+        else
+        {
+            error_message.SetText( "Invalid database driver : " + DatabaseDriver );
+
+            return false;
+        }
+
+        if ( DatabaseServer == "" )
+        {
+            error_message.SetText( "Invalid database server : " + DatabaseServer );
+
+            return false;
+        }
+
+        if ( DatabasePort == ""
+             || !IsNatural( DatabasePort ) )
+        {
+            error_message.SetText( "Invalid database port : " + DatabasePort );
+
+            return false;
+        }
+
+        if ( DatabaseSchema == "" )
+        {
+            error_message.SetText( "Missing database name argument : " + DatabaseSchema );
+
+            return false;
+        }
+
+        if ( DatabaseUser == "" )
+        {
+            error_message.SetText( "Missing database name argument : " + DatabaseUser );
+
+            return false;
+        }
+
+
+        for _, script_file_path := range ScriptFilePathArray
+        {
+            if ( ( strings.HasSuffix( script_file_path, ".cql" ) && IsCqlDatabase )
+                 || ( strings.HasSuffix( script_file_path, ".sql" ) && IsSqlDatabase ) )
             {
-                IsCqlDatabase = true;
-                ScriptFilePathArray = append( ScriptFilePathArray, argument );
-            }
-            else if ( strings.HasSuffix( argument, ".sql" )
-                      && !IsCqlDatabase )
-            {
-                IsSqlDatabase = true;
-                ScriptFilePathArray = append( ScriptFilePathArray, argument );
+                fmt.Println( "Script :", script_file_path );
             }
             else
             {
-                error_message.SetText( "Invalid argument : " + argument );
+                error_message.SetText( "Invalid script argument : " + script_file_path );
 
                 return false;
             }
@@ -328,38 +376,6 @@ func ParseArguments(
     else
     {
         error_message.SetText( "Missing arguments" );
-
-        return false;
-    }
-
-    fmt.Println( "Server : " + DatabaseServer );
-    fmt.Println( "Port : " + DatabasePort );
-    fmt.Println( "Schema : " + DatabaseSchema );
-    fmt.Println( "User : " + DatabaseUser );
-    fmt.Println( "Password : " + DatabasePassword );
-    fmt.Println( "Scripts : " + ScriptFilePathArray );
-
-    if ( DatabaseServer == "" )
-    {
-        error_message.SetText( "Invalid database server" );
-    }
-
-    if ( DatabasePort == ""
-         || !IsNatural( DatabasePort ) )
-    {
-        error_message.SetText( "Invalid database port" );
-    }
-
-    if ( DatabaseSchema == "" )
-    {
-        error_message.SetText( "Missing database name argument" );
-
-        return false;
-    }
-
-    if ( DatabaseUser == "" )
-    {
-        error_message.SetText( "Missing database name argument" );
 
         return false;
     }
