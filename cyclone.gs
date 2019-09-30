@@ -251,7 +251,16 @@ func ExecuteScripts(
         {
             if ( len( line ) > 0 )
             {
-                query += line;
+                line = strings.TrimSpace( line );
+
+                if ( query == "" )
+                {
+                    query = line;
+                }
+                else
+                {
+                    query += " " + line;
+                }
 
                 if ( strings.HasSuffix( query, ";" ) )
                 {
@@ -345,6 +354,7 @@ func ParseArguments(
 
             return false;
         }
+
 
         for _, script_file_path := range ScriptFilePathArray
         {

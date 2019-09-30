@@ -166,7 +166,13 @@ func ExecuteScripts( error_message * ERROR_MESSAGE ) bool {
 
         for _, line := range line_array {
             if ( len( line ) > 0 ) {
-                query += line;
+                line = strings.TrimSpace( line );
+
+                if ( query == "" ) {
+                    query = line;
+                } else {
+                    query += " " + line;
+                }
 
                 if ( strings.HasSuffix( query, ";" ) ) {
                     if ( !RunDatabaseQuery( query, error_message ) ) {
@@ -240,6 +246,7 @@ func ParseArguments( error_message * ERROR_MESSAGE ) bool {
 
             return false;
         }
+
 
         for _, script_file_path := range ScriptFilePathArray {
             if ( ( strings.HasSuffix( script_file_path, ".cql" ) && IsCqlDatabase ) || ( strings.HasSuffix( script_file_path, ".sql" ) && IsSqlDatabase ) ) {
