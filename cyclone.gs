@@ -346,7 +346,6 @@ func ParseArguments(
             return false;
         }
 
-
         for _, script_file_path := range ScriptFilePathArray
         {
             if ( ( strings.HasSuffix( script_file_path, ".cql" ) && IsCqlDatabase )

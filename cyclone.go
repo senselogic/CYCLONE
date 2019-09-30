@@ -241,7 +241,6 @@ func ParseArguments( error_message * ERROR_MESSAGE ) bool {
             return false;
         }
 
-
         for _, script_file_path := range ScriptFilePathArray {
             if ( ( strings.HasSuffix( script_file_path, ".cql" ) && IsCqlDatabase ) || ( strings.HasSuffix( script_file_path, ".sql" ) && IsSqlDatabase ) ) {
                 fmt.Println( "Script :", script_file_path );
