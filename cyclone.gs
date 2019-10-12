@@ -26,6 +26,7 @@ var
     DatabaseServer,
     DatabaseUser string;
 var
+    ExcludedCommandArray,
     ScriptFilePathArray [] string;
 var
     CqlSession * gocql.Session;
@@ -140,6 +141,23 @@ func GetInteger(
     integer, _ := strconv.ParseInt( text, 10, 64 );
 
     return int( integer );
+}
+
+// ~~
+
+func IsExcludedCommand(
+    query string
+    ) bool
+{
+    for _, _excluded_command := range ExcludedCommandArray
+    {
+        if ( strings.HasPrefix( query, _excluded_command ) )
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 // ~~
@@ -264,7 +282,8 @@ func ExecuteScripts(
 
                 if ( strings.HasSuffix( query, ";" ) )
                 {
-                    if ( !RunDatabaseQuery( query, error_message ) )
+                    if ( !IsExcludedCommand( query )
+                         && !RunDatabaseQuery( query, error_message ) )
                     {
                         return false;
                     }
@@ -302,6 +321,24 @@ func ParseArguments(
     ) bool
 {
     argument_array := os.Args[ 1 : ];
+
+    for ( len( argument_array ) >= 1
+            && strings.HasPrefix( argument_array[ 0 ], "--" ) )
+    {
+        if ( len( argument_array ) >= 2
+             && argument_array[ 0 ] == "--exclude" )
+        {
+            ExcludedCommandArray = append( ExcludedCommandArray, argument_array[ 1 ] + " " );
+
+            argument_array = argument_array[ 2 : ];
+        }
+        else
+        {
+            error_message.SetText( "Invalid option : " + argument_array[ 0 ] );
+
+            return false;
+        }
+    }
 
     if ( len( argument_array ) >= 6 )
     {
