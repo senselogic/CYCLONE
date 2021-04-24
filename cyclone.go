@@ -1,6 +1,6 @@
 package main;
 
-// == IMPORTS
+// -- IMPORTS
 
 import ( "database/sql"
     "fmt"
@@ -27,7 +27,7 @@ type ERROR_MESSAGE struct {
     Error error;
 }
 
-// .. INQUIRIES
+// -- INQUIRIES
 
 func ( error_message * ERROR_MESSAGE ) Print( ) {
     var error_text string;
@@ -51,7 +51,7 @@ func ( error_message * ERROR_MESSAGE ) Print( ) {
     }
 }
 
-// .. OPERATIONS
+// -- OPERATIONS
 
 func ( error_message * ERROR_MESSAGE ) Set( text string, error_ error ) {
     error_message.Text = text;

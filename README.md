@@ -10,20 +10,23 @@ Cyclone runs the CQL/SQL statements of one or several scripts on a database.
 
 ## Installation
 
-Install the Go compiler.
+Install the latest Go compiler.
 
 Build the executable with the following command lines :
 
 ```bash
-go get -u github.com/go-sql-driver/mysql
-go get -u github.com/gocql/gocql
+go mod download github.com/go-sql-driver/mysql
+go mod download github.com/gocql/gocql
+go mod download github.com/golang/snappy
+go mod download github.com/hailocab/go-hostpool
+go mod download gopkg.in/inf.v0
 go build cyclone.go
 ```
 
 ## Command line
 
 ```bash
-cyclone {driver} {server} {port} {user} {password} {first_script} {second_script} ...
+cyclone <driver> <server> <port> <user> <password> <first_script> <second_script> ...
 ```
 
 ### Examples

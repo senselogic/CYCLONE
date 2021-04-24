@@ -1,6 +1,6 @@
 package main;
 
-// == IMPORTS
+// -- IMPORTS
 
 import (
     "database/sql"
@@ -41,7 +41,7 @@ type ERROR_MESSAGE struct
     Error error;
 }
 
-// .. INQUIRIES
+// -- INQUIRIES
 
 func ( error_message * ERROR_MESSAGE ) Print(
     )
@@ -76,7 +76,7 @@ func ( error_message * ERROR_MESSAGE ) Print(
     }
 }
 
-// .. OPERATIONS
+// -- OPERATIONS
 
 func ( error_message * ERROR_MESSAGE ) Set(
     text string,
