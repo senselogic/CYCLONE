@@ -267,7 +267,8 @@ func ExecuteScripts(
 
         for _, line := range line_array
         {
-            if ( len( line ) > 0 )
+            if ( len( line ) > 0
+                 && !strings.HasPrefix( line, "--" ) )
             {
                 line = strings.TrimSpace( line );
 
