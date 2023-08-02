@@ -19,6 +19,7 @@ go mod download github.com/go-sql-driver/mysql
 go mod download github.com/gocql/gocql
 go mod download github.com/golang/snappy
 go mod download github.com/hailocab/go-hostpool
+go mod download github.com/lib/pq
 go mod download gopkg.in/inf.v0
 go build cyclone.go
 ```
@@ -26,14 +27,14 @@ go build cyclone.go
 ## Command line
 
 ```bash
-cyclone --driver <driver> --host <host> --port <port> --user <user> --password <password> --database <database> <first_script> <second_script> ...
+cyclone --driver <driver> --host <host> --port <port> --user <user> --password <password> [--database <database>] <first_script> <second_script> ...
 ```
 
 ### Drivers
 
+*   cassandra
 *   mysql
 *   postgresql
-*   cassandra
 
 ### Examples
 
