@@ -6,6 +6,7 @@ import ( "database/sql"
     "fmt"
     "strconv"
     _ "github.com/go-sql-driver/mysql"
+    _ "github.com/lib/pq"
     "github.com/gocql/gocql"
     "io/ioutil"
     "os"
@@ -14,8 +15,8 @@ import ( "database/sql"
 
 // -- VARIABLES
 
-var IsCqlDatabase, IsSqlDatabase bool;
-var DatabaseDriver, DatabasePassword, DatabasePort, DatabaseServer, DatabaseUser string;
+var IsCqlDatabase, IsMysqlDatabase, IsPostgresqlDatabase, IsSqlDatabase bool;
+var DatabaseDriver, DatabaseName, DatabasePassword, DatabasePort, DatabaseHost, DatabaseUser string;
 var ExcludedCommandArray, ScriptFilePathArray [] string;
 var CqlSession * gocql.Session;
 var SqlDatabase * sql.DB;
@@ -98,6 +99,15 @@ func GetInteger( text string ) int {
 
 // ~~
 
+func GetConditionalText( condition bool, text string ) string {
+    if ( condition ) {
+        return text;
+    } else {
+        return "" }
+}
+
+// ~~
+
 func IsExcludedCommand( query string ) bool {
     for _, _excluded_command := range ExcludedCommandArray {
         if ( strings.HasPrefix( query, _excluded_command ) ) {
@@ -116,15 +126,17 @@ func OpenDatabase( error_message * ERROR_MESSAGE ) bool {
     fmt.Println( "Opening database." );
 
     if ( IsCqlDatabase ) {
-        cql_cluster_configuration := gocql.NewCluster( DatabaseServer );
+        cql_cluster_configuration := gocql.NewCluster( DatabaseHost );
         cql_cluster_configuration.Port = GetInteger( DatabasePort );
         cql_cluster_configuration.Timeout = 15 * time.Second;
         cql_cluster_configuration.ConnectTimeout = 15 * time.Second;
         cql_cluster_configuration.Consistency = gocql.Quorum;
 
         CqlSession, error_ = cql_cluster_configuration.CreateSession();
-    } else if ( IsSqlDatabase ) {
-        SqlDatabase, error_ = sql.Open( "mysql", DatabaseUser + ":" + DatabasePassword + "@tcp(" + DatabaseServer + ":" + DatabasePort + ")/" );
+    } else if ( IsMysqlDatabase ) {
+        SqlDatabase, error_ = sql.Open( "mysql", DatabaseUser + ":" + DatabasePassword + "@tcp(" + DatabaseHost + ":" + DatabasePort + ")/" + DatabaseName );
+    } else if ( IsPostgresqlDatabase ) {
+        SqlDatabase, error_ = sql.Open( "postgres", "host=" + DatabaseHost + " port=" + DatabasePort + " user=" + DatabaseUser + " password=" + DatabasePassword + GetConditionalText( DatabaseName != "", " dbname=" + DatabaseName ) + " sslmode=disable" );
     }
 
     if ( error_ != nil ) {
@@ -218,7 +230,25 @@ func ParseArguments( error_message * ERROR_MESSAGE ) bool {
     argument_array := os.Args[ 1 : ];
 
     for ( len( argument_array ) >= 1 && strings.HasPrefix( argument_array[ 0 ], "--" ) ) {
-        if ( len( argument_array ) >= 2 && argument_array[ 0 ] == "--exclude" ) {
+        if ( len( argument_array ) >= 2 && argument_array[ 0 ] == "--driver" ) {
+            DatabaseDriver = argument_array[ 1 ];
+            argument_array = argument_array[ 2 : ];
+        } else if ( len( argument_array ) >= 2 && argument_array[ 0 ] == "--host" ) {
+            DatabaseHost = argument_array[ 1 ];
+            argument_array = argument_array[ 2 : ];
+        } else if ( len( argument_array ) >= 2 && argument_array[ 0 ] == "--port" ) {
+            DatabasePort = argument_array[ 1 ];
+            argument_array = argument_array[ 2 : ];
+        } else if ( len( argument_array ) >= 2 && argument_array[ 0 ] == "--user" ) {
+            DatabaseUser = argument_array[ 1 ];
+            argument_array = argument_array[ 2 : ];
+        } else if ( len( argument_array ) >= 2 && argument_array[ 0 ] == "--password" ) {
+            DatabasePassword = argument_array[ 1 ];
+            argument_array = argument_array[ 2 : ];
+        } else if ( len( argument_array ) >= 2 && argument_array[ 0 ] == "--database" ) {
+            DatabaseName = argument_array[ 1 ];
+            argument_array = argument_array[ 2 : ];
+        } else if ( len( argument_array ) >= 2 && argument_array[ 0 ] == "--exclude" ) {
             ExcludedCommandArray = append( ExcludedCommandArray, argument_array[ 1 ] + " " );
 
             argument_array = argument_array[ 2 : ];
@@ -229,32 +259,32 @@ func ParseArguments( error_message * ERROR_MESSAGE ) bool {
         }
     }
 
-    if ( len( argument_array ) >= 6 ) {
-        DatabaseDriver = argument_array[ 0 ];
-        DatabaseServer = argument_array[ 1 ];
-        DatabasePort = argument_array[ 2 ];
-        DatabaseUser = argument_array[ 3 ];
-        DatabasePassword = argument_array[ 4 ];
-        ScriptFilePathArray = argument_array[ 5 : ];
+    if ( len( argument_array ) >= 1 ) {
+        ScriptFilePathArray = argument_array;
 
         fmt.Println( "Driver :", DatabaseDriver );
-        fmt.Println( "Server :", DatabaseServer );
+        fmt.Println( "Host :", DatabaseHost );
         fmt.Println( "Port :", DatabasePort );
         fmt.Println( "User :", DatabaseUser );
         fmt.Println( "Password :", DatabasePassword );
+        fmt.Println( "Database :", DatabaseName );
 
         if ( DatabaseDriver == "cassandra" ) {
             IsCqlDatabase = true;
         } else if ( DatabaseDriver == "mysql" ) {
             IsSqlDatabase = true;
+            IsMysqlDatabase = true;
+        } else if ( DatabaseDriver == "postgresql" ) {
+            IsSqlDatabase = true;
+            IsPostgresqlDatabase = true;
         } else {
             error_message.SetText( "Invalid database driver : " + DatabaseDriver );
 
             return false;
         }
 
-        if ( DatabaseServer == "" ) {
-            error_message.SetText( "Invalid database server : " + DatabaseServer );
+        if ( DatabaseHost == "" ) {
+            error_message.SetText( "Invalid database server : " + DatabaseHost );
 
             return false;
         }

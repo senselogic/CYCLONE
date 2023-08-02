@@ -26,26 +26,38 @@ go build cyclone.go
 ## Command line
 
 ```bash
-cyclone <driver> <server> <port> <user> <password> <first_script> <second_script> ...
+cyclone --driver <driver> --host <host> --port <port> --user <user> --password <password> --database <database> <first_script> <second_script> ...
 ```
+
+### Drivers
+
+*   mysql
+*   postgresql
+*   cassandra
 
 ### Examples
 
 ```bash
-cyclone cassandra 127.0.0.1 9042 cassandra cassandra test.cql test_data.cql
+cyclone --driver cassandra --host 127.0.0.1 --port 9042 --user cassandra --password cassandra test.cql test_data.cql
 ```
 
 Runs the CQL statements of `test.cql` and `test_data.cql` on a local Cassandra database server.
 
 ```bash
-cyclone mysql 127.0.0.1 3306 root root test.sql test_data.sql
+cyclone --driver mysql --host 127.0.0.1 --port 3306 --user root --password root test.sql test_data.sql
 ```
 
 Runs the SQL statements of `test.sql` and `test_data.sql` on a local MySQL database server.
 
+```bash
+cyclone --driver postgresql --host 127.0.0.1 --port 5432 --user root --password root test.sql test_data.sql
+```
+
+Runs the SQL statements of `test.sql` and `test_data.sql` on a local PostgreSQL database server.
+
 ## Version
 
-1.0
+2.0
 
 ## Author
 
